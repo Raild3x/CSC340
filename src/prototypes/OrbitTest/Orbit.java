@@ -1,4 +1,5 @@
 
+import java.util.ArrayList; // import the ArrayList class
 
 import java.util.Random;
 import javafx.util.Duration;
@@ -20,6 +21,7 @@ public class Orbit extends Application {
     private static final int width = 800;
     private static final int height = 600;
     
+    private ArrayList<CelestialBody> gameObjects = new ArrayList<CelestialBody>();
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -42,11 +44,16 @@ public class Orbit extends Application {
         gc.setFill(Color.BLACK);
         gc.fillRect(0,0,width,height);
 
-        // draw center planet
+        for (CelestialBody body : gameObjects){
+            body.render(gc);
+        }
     }
 
     private void initPlanets(){
-        
+        CelestialBody center = new CelestialBody("Earth", Color.BLUE, 40);
+        gameObjects.add(center);
+        gameObjects.add(new CelestialBody("Moon", Color.WHITE, 20, center, 200));
+        gameObjects.add(new CelestialBody("Moon2", Color.RED, 30, center, 300));
     }
 
 }
