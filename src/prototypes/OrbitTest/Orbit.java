@@ -1,6 +1,5 @@
 
-import java.util.ArrayList; // import the ArrayList class
-
+import java.util.ArrayList;
 import java.util.Random;
 import javafx.util.Duration;
 import javafx.application.Application;
@@ -20,19 +19,20 @@ public class Orbit extends Application {
     // Settings
     private static final int width = 800;
     private static final int height = 600;
+    private static int FPS = 144;
 
+    // Variables
     private static int CurrentPage = 0;
-    
     private ArrayList<CelestialBody> gameObjects = new ArrayList<CelestialBody>();
 
     @Override
     public void start(Stage stage) throws Exception {
         initPlanets();
-        System.out.println("START");
+        
         stage.setTitle("Orbit Test");
         Canvas canvas = new Canvas(width, height);
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        Timeline tl = new Timeline(new KeyFrame(Duration.millis(7), e -> run(gc)));
+        Timeline tl = new Timeline(new KeyFrame(Duration.millis(1000 / FPS), e -> run(gc)));
         tl.setCycleCount(Timeline.INDEFINITE);
 
         //begin rendering
