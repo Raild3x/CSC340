@@ -14,7 +14,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 
-public class Orbit extends Application {
+public class RenderService extends Application {
 
     // Settings
     private static final int width = 800;
@@ -25,9 +25,13 @@ public class Orbit extends Application {
     private static int CurrentPage = 0;
     private ArrayList<CelestialBody> gameObjects = new ArrayList<CelestialBody>();
 
+    public static void Init(args){
+        launch(args);
+    }
+
     @Override
-    public void start(Stage stage) throws Exception {
-        initPlanets();
+    private void start(Stage stage) throws Exception {
+        GuiService.Init(stage);
         
         stage.setTitle("Orbit Test");
         Canvas canvas = new Canvas(width, height);
@@ -51,11 +55,7 @@ public class Orbit extends Application {
         }
     }
 
-    private void initPlanets(){
-        CelestialBody center = new CelestialBody("Earth", Color.BLUE, 40);
-        gameObjects.add(center);
-        gameObjects.add(new CelestialBody("Moon", Color.WHITE, 20, center, 200));
-        gameObjects.add(new CelestialBody("Moon2", Color.RED, 30, center, 300));
-    }
+    public static void addObject(CelestialBody obj){
 
+    }
 }
