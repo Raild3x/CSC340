@@ -20,6 +20,8 @@ public class Orbit extends Application {
     // Settings
     private static final int width = 800;
     private static final int height = 600;
+
+    private static int CurrentPage = 0;
     
     private ArrayList<CelestialBody> gameObjects = new ArrayList<CelestialBody>();
 
@@ -30,7 +32,7 @@ public class Orbit extends Application {
         stage.setTitle("Orbit Test");
         Canvas canvas = new Canvas(width, height);
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        Timeline tl = new Timeline(new KeyFrame(Duration.millis(10), e -> run(gc)));
+        Timeline tl = new Timeline(new KeyFrame(Duration.millis(7), e -> run(gc)));
         tl.setCycleCount(Timeline.INDEFINITE);
 
         //begin rendering
