@@ -9,8 +9,9 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        RenderService.getRenderer().Init(stage);
+        RenderService.Init(stage);
+        GuiService.Init(stage);
         PlanetService.Init();
     }
-    
+
 }

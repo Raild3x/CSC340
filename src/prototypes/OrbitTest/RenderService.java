@@ -25,27 +25,14 @@ public class RenderService {
     private static int FPS = 144;
 
     // Variables
-    private boolean initialized = false;
+    private static boolean initialized = false;
     private static int CurrentPage = 0;
-    private ArrayList<CelestialBody> gameObjects = new ArrayList<CelestialBody>();
+    private static ArrayList<CelestialBody> gameObjects = new ArrayList<CelestialBody>();
 
-    private RenderService() {
-        // Empty Constructor
-    }
-
-    public static RenderService getRenderer() {
-        if (Renderer == null){
-            Renderer = new RenderService();
-        }
-        return Renderer;
-    }
-
-    public void Init(Stage stage) throws Exception {
+    public static void Init(Stage stage) throws Exception {
         if (initialized)
             throw new Exception("RenderService already initialized");
         initialized = true;
-
-        GuiService.Init(stage);
         
         stage.setTitle("Orbit Test");
         Canvas canvas = new Canvas(width, height);
@@ -59,7 +46,7 @@ public class RenderService {
         tl.play();
     }
 
-    private void run(GraphicsContext gc){
+    private static void run(GraphicsContext gc){
         // set background color
         gc.setFill(Color.BLACK);
         gc.fillRect(0,0,width,height);
@@ -69,7 +56,7 @@ public class RenderService {
         }
     }
 
-    public void addInstance(CelestialBody obj){
+    public static void addInstance(CelestialBody obj){
         gameObjects.add(obj);
     }
 }
