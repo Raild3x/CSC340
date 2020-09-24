@@ -14,7 +14,10 @@ import javafx.scene.text.TextAlignment;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 
-public class RenderService extends Application {
+public class RenderService {
+
+    // Instance
+    private static RenderService Renderer;
 
     // Settings
     private static final int width = 800;
@@ -22,15 +25,26 @@ public class RenderService extends Application {
     private static int FPS = 144;
 
     // Variables
+    private boolean initialized = false;
     private static int CurrentPage = 0;
     private ArrayList<CelestialBody> gameObjects = new ArrayList<CelestialBody>();
 
-    public static void Init(args){
-        launch(args);
+    private RenderService() {
+        // Empty Constructor
     }
 
-    @Override
-    private void start(Stage stage) throws Exception {
+    public static RenderService getRenderer() {
+        if (Renderer == null){
+            Renderer = new RenderService();
+        }
+        return Renderer;
+    }
+
+    public void Init(Stage stage) throws Exception {
+        if (initialized)
+            throw new Exception("RenderService already initialized");
+        initialized = true;
+
         GuiService.Init(stage);
         
         stage.setTitle("Orbit Test");
@@ -55,7 +69,7 @@ public class RenderService extends Application {
         }
     }
 
-    public static void addObject(CelestialBody obj){
-
+    public void addInstance(CelestialBody obj){
+        gameObjects.add(obj);
     }
 }

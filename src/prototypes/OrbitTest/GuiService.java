@@ -1,6 +1,8 @@
+import javafx.stage.Stage;
+
 public class GuiService {
 
-    public static void Init(S){
+    public static void Init(Stage stage){
         InitButtons();
     }
 
