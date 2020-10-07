@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
 public class LocationApi {
     private static final String ASTRONOMY_URL = "https://api.ipgeolocation.io/astronomy?apiKey=";
     private static final String API_KEY = "18da31d005e94d3c84fe2cf81d79f114";
@@ -31,8 +30,10 @@ public class LocationApi {
         zipcode,
         timezone
     }
-    //takes the strings: sunset,sunrise,solar_noon,day_length,sun_altitude,sun_distance,sun_azimuth..
-    //more on the google doc in discord, links section
+    
+    //takes a string of the event you want info for: sunset,sunrise,solar_noon,day_length,sun_altitude,sun_distance,sun_azimuth..
+    //returns info (the time they happen,angle,etc)
+    //more events on the google doc in discord, links section
     public static String getAstroInfo(String _event){
         String url = ASTRONOMY_URL + API_KEY + "&lat=" + geolocation.getLatitude() + "&long=" + geolocation.getLongitude();
         getConnection(url);
@@ -44,6 +45,8 @@ public class LocationApi {
         }
     }
     
+    //returns info specified. ex: getIPadress returns the IP adress of the user
+    //takes the enum locationInfo
     public static String getLocationInfo(locationInfo _placeInfo){
         switch(_placeInfo){
             case IP:
@@ -64,8 +67,9 @@ public class LocationApi {
                 return geolocation.getTimezone().toString();
         }
         return "";
-    } 
+    }
     
+    //used to get JSON object for getAstroInfo
     private static void getConnection(String _urlString) {
         URL url;
         try {
