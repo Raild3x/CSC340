@@ -1,22 +1,12 @@
-package prototypes.OrbitTest;
-
-import javafx.scene.control.Button;
+import javafx.stage.Stage;
 
 public class GuiService {
 
-    private GuiService() {
-        throw new IllegalStateException("Service class");
-    }
-
-    public static void Init(){
+    public static void Init(Stage stage){
         InitButtons();
     }
 
     public static void InitButtons(){
-        Button button = new Button("Click Me!");
-        button.setStyle("-fx-background-color: #aa00aa");
-        button.setOnAction(e -> button.setText("I've been clicked!"));
 
-        RenderService.addButton(button);
     }
 }
