@@ -13,7 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class AstronomyLocationAdapter {
+public class LocationApi {
     private static final String ASTRONOMY_URL = "https://api.ipgeolocation.io/astronomy?apiKey=";
     private static final String API_KEY = "18da31d005e94d3c84fe2cf81d79f114";
     private static final IPGeolocationAPI API = new IPGeolocationAPI(API_KEY);
