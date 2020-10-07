@@ -1,7 +1,13 @@
+package prototypes.OrbitTest;
+
 import javafx.scene.paint.Color;
 
 
 public class PlanetService{
+
+    private PlanetService() {
+        throw new IllegalStateException("Service class");
+    }
 
     public static void Init(){
         InitPlanets();
