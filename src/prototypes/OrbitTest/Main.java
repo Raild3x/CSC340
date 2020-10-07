@@ -1,5 +1,9 @@
+package prototypes.OrbitTest;
+
+
 import javafx.stage.Stage;
 import javafx.application.Application;
+
 
 public class Main extends Application {
 
@@ -10,7 +14,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         RenderService.Init(stage);
-        GuiService.Init(stage);
+        GuiService.Init();
         PlanetService.Init();
     }
 
