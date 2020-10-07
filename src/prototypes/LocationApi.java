@@ -9,50 +9,72 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.json.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-/**
- *
- * @author sytiv
- */
-public class LocationApi {
 
-    private static final String LOCATION_API_KEY = "18da31d005e94d3c84fe2cf81d79f114";
-    private static final String GEO_URL = "https://api.ipgeolocation.io/ipgeo?apiKey=";
-    private static final IPGeolocationAPI api = new IPGeolocationAPI(LOCATION_API_KEY);
+public class AstronomyLocationAdapter {
+    private static final String ASTRONOMY_URL = "https://api.ipgeolocation.io/astronomy?apiKey=";
+    private static final String API_KEY = "18da31d005e94d3c84fe2cf81d79f114";
+    private static final IPGeolocationAPI API = new IPGeolocationAPI(API_KEY);
+    private static final GeolocationParams geoParams = new GeolocationParams();
+    private static final Geolocation geolocation = API.getGeolocation(geoParams);
+    private static JSONObject OBJ;
 
-    public static void getGeoLocation(String _ipAddress) {
-
-        GeolocationParams geoParams = new GeolocationParams();
-
-        geoParams.setIPAddress(_ipAddress);
-        geoParams.setFields("geo,time_zone");
-
-        Geolocation geolocation = api.getGeolocation(geoParams);
-
-        if (geolocation.getStatus() == 200) {
-            System.out.println(geolocation.getCountryName());
-            System.out.println(geolocation.getTimezone().getCurrentTime());
-        } else {
-            System.out.printf("Status Code: %d, Message: %s\n", geolocation.getStatus(), geolocation.getMessage());
+    enum locationInfo{
+        IP,
+        latitude,
+        longitude,
+        city,
+        countryName,
+        stateOrProv,
+        zipcode,
+        timezone
+    }
+    //takes the strings: sunset,sunrise,solar_noon,day_length,sun_altitude,sun_distance,sun_azimuth..
+    //more on the google doc in discord, links section
+    public static String getAstroInfo(String _event){
+        String url = ASTRONOMY_URL + API_KEY + "&lat=" + geolocation.getLatitude() + "&long=" + geolocation.getLongitude();
+        getConnection(url);
+        try {
+            return OBJ.getString(_event);
+        } catch (JSONException ex) {
+            Logger.getLogger(AstronomyLocationAdapter.class.getName()).log(Level.SEVERE, null, ex);
+            return "";
         }
     }
     
-    public static void main(String[] args){
-        String urlString = GEO_URL + LOCATION_API_KEY;
+    public static String getLocationInfo(locationInfo _placeInfo){
+        switch(_placeInfo){
+            case IP:
+                return geolocation.getIPAddress();
+            case latitude:
+                return geolocation.getLatitude();
+            case longitude:
+                return geolocation.getLongitude();
+            case countryName:
+                return geolocation.getCountryName();
+            case stateOrProv:
+                return geolocation.getStateProvince();
+            case city:
+                return geolocation.getCity();
+            case zipcode:
+                return geolocation.getZipCode();
+            case timezone:
+                return geolocation.getTimezone().toString();
+        }
+        return "";
+    } 
+    
+    private static void getConnection(String _urlString) {
         URL url;
-        String ipAddress = "";
-        String latitude = "";
-        String longitude = "";
-        JSONObject obj = new JSONObject();
-        
         try {
-            url = new URL(urlString);
+            url = new URL(_urlString);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             int status = con.getResponseCode();
             System.out.println("Response Code: " + status);
-            
+
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
             StringBuffer content = new StringBuffer();
@@ -61,20 +83,9 @@ public class LocationApi {
             }
             in.close();
             con.disconnect();
-            
-            System.out.println("Output: " + content.toString());
-            obj = new JSONObject(content.toString());
-            ipAddress = obj.getString("ip");
-            latitude = obj.getString("latitude");
-            longitude = obj.getString("longitude");
-            
+
+            OBJ = new JSONObject(content.toString());
         } catch (Exception ex) {
-            Logger.getLogger(LocationApi.class.getName()).log(Level.SEVERE, null, ex);
-            return;
+            Logger.getLogger(AstronomyLocationAdapter.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        getGeoLocation(ipAddress);
-        System.out.println("latitude is: " + latitude +" & longitude is: " + longitude);
-        
     }
-}
