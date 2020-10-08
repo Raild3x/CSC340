@@ -45,7 +45,7 @@ public class LocationApi {
         }
     }
     
-    //returns info specified. ex: getIPadress returns the IP adress of the user
+    //returns info specified. ex: getIPaddress returns the IP adress of the user
     //takes the enum locationInfo
     public static String getLocationInfo(locationInfo _placeInfo){
         switch(_placeInfo){
@@ -92,4 +92,15 @@ public class LocationApi {
         } catch (Exception ex) {
             Logger.getLogger(AstronomyLocationAdapter.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    //example of methods
+    public static void main(String [] args){
+        System.out.println(getAstroInfo("sunrise"));
+        System.out.println(getAstroInfo("date"));
+        System.out.println(getAstroInfo("moon_parallactic_angle"));
+        System.out.println(getLocationInfo(locationInfo.IP));
+        System.out.println(getLocationInfo(locationInfo.stateOrProv));
+        System.out.println(getLocationInfo(locationInfo.latitude));
+        System.out.println(getLocationInfo(locationInfo.longitude));
     }
