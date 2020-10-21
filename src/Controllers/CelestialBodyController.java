@@ -6,7 +6,7 @@
 package Controllers;
 
 import Models.CelestialBody;
-import Views.CelestialBodyView;
+import Services.RenderService;
 import javafx.scene.canvas.GraphicsContext;
 
 /**
@@ -16,11 +16,9 @@ import javafx.scene.canvas.GraphicsContext;
 public class CelestialBodyController {
     
     private CelestialBody Model;
-    private CelestialBodyView View;
     
-    public CelestialBodyController(CelestialBody Model, CelestialBodyView View){
+    public CelestialBodyController(CelestialBody Model){
         this.Model = Model;
-        this.View = View;
     }
     
     public void MoveCelestialBody(double dt){
@@ -32,12 +30,33 @@ public class CelestialBodyController {
         Model.render(gc);
     }
     
+    public void BoldOrbit(boolean val){
+        Model.boldOrbit = val;
+    }
+    
     public double GetX(){
         return Model.getX();
     }
     
     public double GetY(){
         return Model.getY();
+    }
+    
+    public String GetName(){
+        return Model.name;
+    }
+    
+    public double GetDistToOrbit(double px, double py){
+       return Model.getDistToOrbit(px, py);
+    }
+    
+    public double GetDistToPlanet(double px, double py){
+        return Model.getDistToPlanet(px, py);
+    }
+    
+    public void ClickedPlanet(){
+        BoldOrbit(true);
+        System.out.println("Clicked: "+Model.name);
     }
     
     public void RenderView(){

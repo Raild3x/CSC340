@@ -6,6 +6,7 @@
 package Views;
 
 import Controllers.Signal;
+import Services.PlanetService;
 import Services.RenderService;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseDragEvent;
@@ -17,10 +18,12 @@ import javafx.scene.input.MouseEvent;
  */
 public class MouseView {
     
+    // Events
+    public static final Signal<Double> MouseDragged = new Signal<>();
+    
     private static MouseView instance;
     private final Canvas screen;
     private double lastX = 0;
-    public static final Signal<Double> MouseDragged = new Signal<>();
     
     // Properties
     private double x = 0;
@@ -41,11 +44,13 @@ public class MouseView {
     private void Init(){
         //set response to mouse events
         screen.setOnMouseClicked((MouseEvent event) -> {
-            //System.out.println("mouseClicked: "+event.getX());
             lastX = event.getX();
+            PlanetService.FocusNearestPlanet();
         });
         screen.setOnMouseDragged((MouseEvent event) -> {
-            //System.out.println("mouseDragging: "+event.getX());
+            x = event.getX();
+            y = event.getY();
+
             MouseDragged.Fire((event.getX() - lastX)/2); // pass delta
             lastX = event.getX();
         });

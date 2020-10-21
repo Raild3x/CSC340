@@ -40,7 +40,7 @@ public class RenderService {
     private static final int HEIGHT = 1000;
     private static final int FPS = 60;
     private static double ZOOM = 100;
-    private static final int MAX_ZOOM = 450;
+    private static final int MAX_ZOOM = 550;
     private static final int MIN_ZOOM = 10;
     private static double goalZOOM = ZOOM;
     private static double offsetX = 0;
@@ -80,7 +80,6 @@ public class RenderService {
         tl.play();
         
         MouseView.GetInstance().MouseDragged.Connect(Delta -> {
-            System.out.println(Delta);
             goalZOOM += Delta;
             goalZOOM = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM,goalZOOM));
         });
@@ -88,15 +87,11 @@ public class RenderService {
 
     private static void run(GraphicsContext gc){
         // Do update logic
-        ZOOM += (goalZOOM - ZOOM)/10;
-        /*if (Focus != null){
-            offsetX += (Focus.getX() - offsetX)/10;
-            offsetY += (Focus.getY() - offsetY)/10;
-            //offsetX = Focus.getX();
-            //offsetY = Focus.getY();
-            System.out.println("X: "+offsetX+"\tY: "+offsetY);
-        }*/
-        
+        ZOOM += (goalZOOM - ZOOM)/5;
+        if (Focus != null){
+            offsetX += (Focus.GetX() - offsetX)/5;
+            offsetY += (Focus.GetY() - offsetY)/5;
+        }
         
         // set background color
         gc.setFill(Color.BLACK);
@@ -104,7 +99,7 @@ public class RenderService {
         
         double dx = getOffsetX();
         double dy = getOffsetY();
-        // Perform Object Movements
+        // Update Object Movements
         for (CelestialBodyController body : gameObjects){
             body.MoveCelestialBody(System.currentTimeMillis()-lastTick);
         }
@@ -122,7 +117,6 @@ public class RenderService {
     public static void addInstance(CelestialBodyController obj){
         gameObjects.add(obj);
     }
-
     public static void addButton(Button button){
         stackPane.getChildren().add(button);
     }
@@ -137,8 +131,8 @@ public class RenderService {
     public static CelestialBodyController getFocus(){ return Focus; }
     public static double getZoom(){ return ZOOM; }
     public static Canvas getCanvas(){ return canvas; }
-    public static double getOffsetX() { return Focus.GetX() - WIDTH/2; }
-    public static double getOffsetY() { return Focus.GetY() - HEIGHT/2; }
+    public static double getOffsetX() { return offsetX - WIDTH/2; }
+    public static double getOffsetY() { return offsetY - HEIGHT/2; }
     public static int getWidth() { return WIDTH; }
     public static int getHeight() { return HEIGHT; }
 

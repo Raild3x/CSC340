@@ -12,13 +12,12 @@ package Services;
 import javafx.scene.paint.Color;
 import Models.CelestialBody;
 import Controllers.CelestialBodyController;
-import Views.CelestialBodyView;
+import Views.MouseView;
 import java.util.Hashtable;
 
 
 public class PlanetService{
 
-    private static CelestialBodyView view = new CelestialBodyView();
     private static Hashtable<String, CelestialBodyController> CelestialBodyControllers = new Hashtable<String, CelestialBodyController>();
     
     private PlanetService() {
@@ -27,6 +26,7 @@ public class PlanetService{
 
     public static void Init(){
         InitPlanets();
+        InitPlanetEvents();
     }
 
     private static void InitPlanets(){
@@ -43,13 +43,43 @@ public class PlanetService{
         
         InitNewCelestialBody(Sun);
         RenderService.setFocus(GetPlanet("Sun"));
-        
+    }
+    
+    private static CelestialBodyController closest;
+    private static double dist;
+    private static void InitPlanetEvents(){
+        MouseView mv = MouseView.GetInstance();
+        RenderService.PostRenderstep.Connect(dt -> {
+            closest = null;
+            dist = Integer.MAX_VALUE;
+
+            CelestialBodyControllers.forEach((name,controller) ->{
+                if (controller != RenderService.getFocus())
+                    controller.BoldOrbit(false);
+                double cd = Math.min(controller.GetDistToOrbit(mv.getX() + RenderService.getOffsetX(), mv.getY() + RenderService.getOffsetY()),
+                    controller.GetDistToPlanet(mv.getX() + RenderService.getOffsetX(), mv.getY() + RenderService.getOffsetY()));
+                if(cd < dist){
+                    closest = controller;
+                    dist = cd;
+                } 
+            });
+            if (dist < 15)
+                closest.ClickedPlanet();
+            else
+                closest = null;
+        });
     }
     
     private static void InitNewCelestialBody(CelestialBody cb){
-        CelestialBodyController cbc = new CelestialBodyController(cb, view);
+        CelestialBodyController cbc = new CelestialBodyController(cb);
         CelestialBodyControllers.put(cb.name, cbc);
         RenderService.addInstance(cbc);
+    }
+    
+    public static void FocusNearestPlanet(){
+        if (closest == null)
+            return;
+        RenderService.setFocus(closest);
     }
     
     public static CelestialBodyController GetPlanet(String planetName){

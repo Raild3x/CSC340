@@ -17,8 +17,6 @@ public class CelestialBody {
 
     // Test Vars
     private double angle = 0;
-    private double dist = 100;
-    private double z = 0;
     
     // Properties
     private final double A, B, C;
@@ -30,6 +28,7 @@ public class CelestialBody {
     private double y = 0;
 
     public boolean displayOrbit = true;
+    public boolean boldOrbit = false;
 
 
     public CelestialBody (String name, Color color, double size, CelestialBody orbitingBody, double A, double B, double C) {
@@ -41,7 +40,6 @@ public class CelestialBody {
         this.B = B;
         this.C = C;
     }
-
     public CelestialBody (String name, Color color, double size) {
         this.name = name;
         this.size = size;
@@ -68,23 +66,31 @@ public class CelestialBody {
     }
     
     public void render(GraphicsContext gc){
+        double zoom = RenderService.getZoom();
         if (orbitingBody != null){
             if (displayOrbit){
-                double zoom = RenderService.getZoom();
                 // draw orbit
                 gc.setStroke(color);
                 double x  = orbitingBody.getX() + C*zoom - (A*zoom);
                 double y = orbitingBody.getY() - (B*zoom);
+                if (boldOrbit)
+                    gc.setLineWidth(4.0);
                 gc.strokeOval(x, y, A*zoom*2, B*zoom*2);
+                gc.setLineWidth(1.0);
             }
         }
         
         // draw planet
         gc.setFill(color);
+        double size = this.size*(zoom/350);
+        if (boldOrbit)
+            size *= 2;
         gc.fillOval(x-size/2,y-size/2,size,size);
     }
     
-    public double distToOrbit(double px, double py){
+    public double getDistToOrbit(double px, double py){
+        if (orbitingBody == null)
+            return Integer.MAX_VALUE;
         double zoom = RenderService.getZoom();
         double x  = orbitingBody.getX() + C*zoom;
         double y = orbitingBody.getY();
@@ -97,7 +103,10 @@ public class CelestialBody {
         return Math.abs(d1 - d2);
     }
     
-        
+    public double getDistToPlanet(double px, double py){
+        return Math.sqrt(Math.pow(getX() - px, 2) + Math.pow(getY() - py, 2));
+    }
+    
     public double getX() { return x; }
     public double getY() { return y; }
     public CelestialBody getOrbitingBody(){ return orbitingBody; }
