@@ -1,0 +1,26 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'CalendarApi'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+version = '1.0'
+
+allprojects{
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven { url "http://dl.bintray.com/ipgeolocation/ipgeolocation" }
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+
+dependencies {
+    compile 'com.google.api-client:google-api-client:1.23.0'
+    compile 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
+    compile 'com.google.apis:google-api-services-calendar:v3-rev305-1.23.0'
+    compile 'io.ipgeolocation:ipgeolocation:1.0.12'
+    implementation files('libs/org.json.jar')
+}
