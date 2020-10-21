@@ -6,6 +6,8 @@ package Services;
  */
 import javafx.stage.Stage;
 import javafx.application.Application;
+import Api.*;
+import Views.MouseView;
 
 
 public class Main extends Application {
@@ -19,6 +21,7 @@ public class Main extends Application {
         RenderService.Init(stage);
         GuiService.Init();
         PlanetService.Init();
+        //LocationApi.Test();
     }
 
 }

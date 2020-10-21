@@ -9,7 +9,10 @@ package Services;
  *
  * @author Logan
  */
-import Objects.*;
+import Controllers.CelestialBodyController;
+import Models.CelestialBody;
+import Controllers.Signal;
+import Views.MouseView;
 
 import java.util.ArrayList;
 import javafx.util.Duration;
@@ -22,6 +25,7 @@ import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.control.Label;
 
 public class RenderService {
 
@@ -32,17 +36,25 @@ public class RenderService {
     private static GraphicsContext gc;
 
     // Settings
-    private static final int WIDTH = 800;
-    private static final int HEIGHT = 600;
-    private static final int FPS = 144;
+    private static final int WIDTH = 1200;
+    private static final int HEIGHT = 1000;
+    private static final int FPS = 60;
+    private static double ZOOM = 100;
+    private static final int MAX_ZOOM = 450;
+    private static final int MIN_ZOOM = 10;
+    private static double goalZOOM = ZOOM;
+    private static double offsetX = 0;
+    private static double offsetY = 0;
+    private static CelestialBodyController Focus;
 
     // Signals
-	public static final Signal<Long> Renderstep = new Signal<>();
-	public static final Signal<Long> PostRenderstep = new Signal<>();
+    public static final Signal<Long> Renderstep = new Signal<>();
+    public static final Signal<Long> PostRenderstep = new Signal<>();
 
     // Variables
+    private static long lastTick = 0;
     private static boolean initialized = false;
-    private static ArrayList<CelestialBody> gameObjects = new ArrayList<>();
+    private static ArrayList<CelestialBodyController> gameObjects = new ArrayList<>();
 
     private RenderService() {
         throw new IllegalStateException("Service class");
@@ -64,26 +76,71 @@ public class RenderService {
         scene = new Scene(stackPane);
         stage.setScene(scene);
         stage.show();
+        lastTick = System.currentTimeMillis();
         tl.play();
+        
+        MouseView.GetInstance().MouseDragged.Connect(Delta -> {
+            System.out.println(Delta);
+            goalZOOM += Delta;
+            goalZOOM = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM,goalZOOM));
+        });
     }
 
     private static void run(GraphicsContext gc){
+        // Do update logic
+        ZOOM += (goalZOOM - ZOOM)/10;
+        /*if (Focus != null){
+            offsetX += (Focus.getX() - offsetX)/10;
+            offsetY += (Focus.getY() - offsetY)/10;
+            //offsetX = Focus.getX();
+            //offsetY = Focus.getY();
+            System.out.println("X: "+offsetX+"\tY: "+offsetY);
+        }*/
+        
+        
         // set background color
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, WIDTH, HEIGHT);
-
-        for (CelestialBody body : gameObjects){
-            body.render(gc);
+        
+        double dx = getOffsetX();
+        double dy = getOffsetY();
+        // Perform Object Movements
+        for (CelestialBodyController body : gameObjects){
+            body.MoveCelestialBody(System.currentTimeMillis()-lastTick);
         }
+        // Draw Objects
+        gc.translate( -dx, -dy);
+        for (CelestialBodyController body : gameObjects){
+            body.RenderCelestialBody(gc);
+        }
+        gc.translate( dx, dy);
+        
+        PostRenderstep.Fire(System.currentTimeMillis()-lastTick);
+        lastTick = System.currentTimeMillis();
     }
 
-    public static void addInstance(CelestialBody obj){
+    public static void addInstance(CelestialBodyController obj){
         gameObjects.add(obj);
     }
 
     public static void addButton(Button button){
         stackPane.getChildren().add(button);
     }
+    public static void addButton(Label button) {
+        stackPane.getChildren().add(button);
+    }
+    
+    public static void setFocus(CelestialBodyController focus){
+        Focus = focus;
+    }
+    
+    public static CelestialBodyController getFocus(){ return Focus; }
+    public static double getZoom(){ return ZOOM; }
+    public static Canvas getCanvas(){ return canvas; }
+    public static double getOffsetX() { return Focus.GetX() - WIDTH/2; }
+    public static double getOffsetY() { return Focus.GetY() - HEIGHT/2; }
+    public static int getWidth() { return WIDTH; }
+    public static int getHeight() { return HEIGHT; }
 
     // Graphic Utility Methods
     public static void fadeIn(double t){
