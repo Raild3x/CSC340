@@ -1,13 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package astroapi;
 
 /**
- *
- * @author sytiv
+ *Class is used to force parameters for API to be correct
  */
 public enum DataParams {
     ID("id"),
@@ -32,7 +26,7 @@ public enum DataParams {
 
     String data;
 
-    DataParams(String _data) {
+    private DataParams(String _data) {
         this.data = _data;
     }
 
