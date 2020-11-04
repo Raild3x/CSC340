@@ -6,7 +6,8 @@ package Services;
  */
 import javafx.stage.Stage;
 import javafx.application.Application;
-import Api.*;
+//import Api.*;
+import Views.GuiView;
 import Views.MouseView;
 
 
@@ -17,10 +18,10 @@ public class Main extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
-        RenderService.Init(stage);
-        GuiService.Init();
-        PlanetService.Init();
+    public void start(Stage _stage) throws Exception {
+        RenderService.getInstance(_stage);
+        PlanetService.init();
+        MouseView.init();
         //LocationApi.Test();
     }
 

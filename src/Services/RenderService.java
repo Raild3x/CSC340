@@ -10,9 +10,12 @@ package Services;
  * @author Logan
  */
 import Controllers.CelestialBodyController;
+import Controllers.GuiController;
 import Models.CelestialBody;
 import Controllers.Signal;
+import Models.InputModel;
 import Views.MouseView;
+import java.io.FileInputStream;
 
 import java.util.ArrayList;
 import javafx.util.Duration;
@@ -25,119 +28,187 @@ import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView; 
 
 public class RenderService {
-
+    
     // Instance
-    private static Canvas canvas;
-    private static Scene scene;
-    private static StackPane stackPane;
-    private static GraphicsContext gc;
-
-    // Settings
+    private static RenderService instance;
+    
+    // References
+    private final GuiController guiController; 
+    private final Stage stage;
+    private final Canvas canvas;
+    private final Scene scene;
+    private final StackPane stackPane;
+    private final GraphicsContext gc;
+    private final ArrayList<CelestialBodyController> gameObjects;
+    
+    // Settings (Finals)
     private static final int WIDTH = 1200;
     private static final int HEIGHT = 1000;
     private static final int FPS = 60;
-    private static double ZOOM = 100;
     private static final int MAX_ZOOM = 550;
     private static final int MIN_ZOOM = 10;
-    private static double goalZOOM = ZOOM;
-    private static double offsetX = 0;
-    private static double offsetY = 0;
-    private static CelestialBodyController Focus;
+    private static final int backgroundWidth = 2400;
+    private static final int backgroundHeight = 3840;
 
     // Signals
     public static final Signal<Long> Renderstep = new Signal<>();
     public static final Signal<Long> PostRenderstep = new Signal<>();
 
-    // Variables
-    private static long lastTick = 0;
-    private static boolean initialized = false;
-    private static ArrayList<CelestialBodyController> gameObjects = new ArrayList<>();
+    // Variables (Volatile)
+    private double ZOOM = 12;
+    private double goalZOOM = ZOOM;
+    private double offsetX = 0;
+    private double offsetY = 0;
+    private long lastTick;
+    private CelestialBodyController focus;
+    
 
-    private RenderService() {
-        throw new IllegalStateException("Service class");
+    /*
+     * RenderService constructor
+     * @param _stage The stage given by JavaFX in main
+    */
+    private RenderService(Stage _stage) throws Exception {
+        this.guiController = GuiController.getInstance();
+        this.stage = _stage;
+        this.canvas = this.guiController.getCanvas();
+        this.stackPane = this.guiController.getStackPane();
+        this.scene = new Scene(this.stackPane);
+        this.gc = this.canvas.getGraphicsContext2D();
+        this.gameObjects = new ArrayList<>();
+        this.lastTick = System.currentTimeMillis();
+        this.init();
+        this.initEvents();
     }
     
-    public static void Init(Stage stage) throws Exception {
-        if (initialized)
-            throw new Exception("RenderService already initialized");
-        initialized = true;
-        
-        stage.setTitle("Orbit Test");
-        canvas = new Canvas(WIDTH, HEIGHT);
-        gc = canvas.getGraphicsContext2D();
-        Timeline tl = new Timeline(new KeyFrame(Duration.millis(1000 / FPS), e -> run(gc)));
-        tl.setCycleCount(Timeline.INDEFINITE);
+    /*
+     * This version of getInstance should only be called by Main, it initializes the class singleton.
+     * @param _stage The stage given by JavaFX in Main.
+    */
+    public static RenderService getInstance(Stage _stage) throws Exception {
+        instance = new RenderService(_stage);
+        return instance;
+    }
+    
+    /*
+     * Returns a reference to the singleton and errors if it has not yet been instantiated.
+    */
+    public static RenderService getInstance() {
+        if (instance == null)
+            throw new IllegalStateException("RenderService instance does not yet exist; it must first be created from Main.");
+        return instance;
+    }
+    
+    /*
+    Initializes the Renderer, sets up the screen and begins the render cycle by calling run every set milliseconds.
+    @param _stage The window on which to build the canvas and scene
+    */
+    private void init() throws Exception {
+        try {
+            this.stage.setTitle("Orbit Test");
 
-        //begin rendering
-        stackPane = new StackPane(canvas);
-        scene = new Scene(stackPane);
-        stage.setScene(scene);
-        stage.show();
-        lastTick = System.currentTimeMillis();
-        tl.play();
-        
-        MouseView.GetInstance().MouseDragged.Connect(Delta -> {
+            //rerouted the GUI canvas and stackpane to be made in GUIController so I can add buttons to it from GuiView -Taylor
+            this.canvas.setHeight(HEIGHT);
+            this.canvas.setWidth(WIDTH);
+            
+            Timeline tl = new Timeline(new KeyFrame(Duration.millis(1000 / FPS), e -> run(gc)));
+            tl.setCycleCount(Timeline.INDEFINITE);
+            
+            this.guiController.addGuiObject(canvas);
+            this.stage.setScene(scene);
+            this.stage.show();
+            //begin rendering
+            tl.play();
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+    
+    /*
+     * Organizational method for setting up events on singleton initialization
+    */
+    private void initEvents() {
+        // Connect to events
+        InputModel.getInstance().InputDragging.Connect(Delta -> {
             goalZOOM += Delta;
             goalZOOM = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM,goalZOOM));
         });
     }
 
-    private static void run(GraphicsContext gc){
+    /*
+    Runs every frame and executes planet movement updates and rendering.
+    @param _gc GraphicsContext being used to render on.
+    */
+    private void run(GraphicsContext _gc) {
         // Do update logic
-        ZOOM += (goalZOOM - ZOOM)/5;
-        if (Focus != null){
-            offsetX += (Focus.GetX() - offsetX)/5;
-            offsetY += (Focus.GetY() - offsetY)/5;
+        ZOOM += (goalZOOM - ZOOM) / 5;
+        if (focus != null) {
+            offsetX += (focus.getX() - offsetX) / 5;
+            offsetY += (focus.getY() - offsetY) / 5;
         }
         
         // set background color
-        gc.setFill(Color.BLACK);
-        gc.fillRect(0, 0, WIDTH, HEIGHT);
+        _gc.setFill(Color.BLACK);
+        _gc.fillRect(0, 0, WIDTH, HEIGHT);
         
         double dx = getOffsetX();
         double dy = getOffsetY();
-        // Update Object Movements
+        // Update Object Movements //
+        long currentTick = System.currentTimeMillis();
         for (CelestialBodyController body : gameObjects){
-            body.MoveCelestialBody(System.currentTimeMillis()-lastTick);
+            body.moveCelestialBody(currentTick - lastTick);
         }
-        // Draw Objects
-        gc.translate( -dx, -dy);
+        // Draw Objects //
+        // offset camera
+        _gc.translate( -dx, -dy);
         for (CelestialBodyController body : gameObjects){
-            body.RenderCelestialBody(gc);
+            body.renderCelestialBody(_gc);
         }
-        gc.translate( dx, dy);
+        //reset camera
+        _gc.translate(dx, dy);
         
-        PostRenderstep.Fire(System.currentTimeMillis()-lastTick);
+        PostRenderstep.Fire(currentTick - lastTick);
         lastTick = System.currentTimeMillis();
     }
 
-    public static void addInstance(CelestialBodyController obj){
-        gameObjects.add(obj);
-    }
-    public static void addButton(Button button){
-        stackPane.getChildren().add(button);
-    }
-    public static void addButton(Label button) {
-        stackPane.getChildren().add(button);
+    /*
+    Adds the Controller of a given CelestialBody to the gameObjects arraylist to be rendered.
+    @param _obj The CelestialBodyController that is going to be added.
+    */
+    public void addInstance(CelestialBodyController _obj){
+        gameObjects.add(_obj);
     }
     
-    public static void setFocus(CelestialBodyController focus){
-        Focus = focus;
-    }
     
-    public static CelestialBodyController getFocus(){ return Focus; }
-    public static double getZoom(){ return ZOOM; }
-    public static Canvas getCanvas(){ return canvas; }
-    public static double getOffsetX() { return offsetX - WIDTH/2; }
-    public static double getOffsetY() { return offsetY - HEIGHT/2; }
-    public static int getWidth() { return WIDTH; }
-    public static int getHeight() { return HEIGHT; }
-
+    
     // Graphic Utility Methods
+    /*
+    --UNDER CONSTRUCTION--
+    */
     public static void fadeIn(double t){
 
+    }
+    
+    //=================================== GETTERS ===================================//
+    public CelestialBodyController getFocus(){ return this.focus; }
+    public double getZoom(){ return this.ZOOM; }
+    public double getOffsetX() { return this.offsetX - WIDTH/2; }
+    public double getOffsetY() { return this.offsetY - HEIGHT/2; }
+    public int getWidth() { return WIDTH; }
+    public int getHeight() { return HEIGHT; }
+    
+    //=================================== SETTERS ===================================//
+    public void setFocus(CelestialBodyController _focus){
+        this.focus = _focus;
+    }
+    
+    public void setFocus(String _focus){
+        this.focus = PlanetService.getPlanetController(_focus);
     }
 }

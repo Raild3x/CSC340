@@ -15,51 +15,48 @@ import javafx.scene.canvas.GraphicsContext;
  */
 public class CelestialBodyController {
     
-    private CelestialBody Model;
+    private CelestialBody model;
     
-    public CelestialBodyController(CelestialBody Model){
-        this.Model = Model;
+    public CelestialBodyController(CelestialBody _model){
+        this.model = _model;
     }
     
-    public void MoveCelestialBody(double dt){
-        Model.update(dt);
-        //Model.move(angle);
+    public void moveCelestialBody(double dt){
+        this.model.update(dt);
     }
     
-    public void RenderCelestialBody(GraphicsContext gc){
-        Model.render(gc);
+    public void renderCelestialBody(GraphicsContext gc){
+        this.model.render(gc);
+    }
+
+    public void clickPlanet(){
+        this.boldOrbit(true);
+        System.out.println("Clicked: "+this.getName());
     }
     
-    public void BoldOrbit(boolean val){
-        Model.boldOrbit = val;
+    //=================================== GETTERS ===================================//
+    public double getX(){
+        return this.model.getX();
     }
     
-    public double GetX(){
-        return Model.getX();
+    public double getY(){
+        return this.model.getY();
     }
     
-    public double GetY(){
-        return Model.getY();
+    public String getName(){
+        return this.model.name;
     }
     
-    public String GetName(){
-        return Model.name;
+    public double getDistToOrbit(double px, double py){
+       return this.model.getDistToOrbit(px, py);
     }
     
-    public double GetDistToOrbit(double px, double py){
-       return Model.getDistToOrbit(px, py);
+    public double getDistToPlanet(double px, double py){
+        return this.model.getDistToPlanet(px, py);
     }
     
-    public double GetDistToPlanet(double px, double py){
-        return Model.getDistToPlanet(px, py);
-    }
-    
-    public void ClickedPlanet(){
-        BoldOrbit(true);
-        System.out.println("Clicked: "+Model.name);
-    }
-    
-    public void RenderView(){
-        
+    //=================================== SETTERS ===================================//
+    public void boldOrbit(boolean val){
+        this.model.boldOrbit = val;
     }
 }

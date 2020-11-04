@@ -1,4 +1,4 @@
-package Api;
+/*package Api;
 
 import io.ipgeolocation.api.GeolocationParams;
 import io.ipgeolocation.api.Geolocation;
@@ -90,3 +90,4 @@ public class LocationApi {
         }
     }
 }
+*/

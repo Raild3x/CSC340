@@ -24,90 +24,114 @@ public class CelestialBody {
     public final double size;
     public final Color color;
     public final CelestialBody orbitingBody;
+    
     private double x = 0;
     private double y = 0;
 
     public boolean displayOrbit = true;
     public boolean boldOrbit = false;
 
-
-    public CelestialBody (String name, Color color, double size, CelestialBody orbitingBody, double A, double B, double C) {
-        this.name = name;
-        this.size = size;
-        this.color = color;
-        this.orbitingBody = orbitingBody;
-        this.A = A;
-        this.B = B;
-        this.C = C;
+    /*
+    Constructor for CelestialBody object.
+    */
+    public CelestialBody (String _name, Color _color, double _size, CelestialBody _orbitingBody, double _A, double _B, double _C) {
+        this.name = _name;
+        this.size = _size;
+        this.color = _color;
+        this.orbitingBody = _orbitingBody;
+        this.A = _A;
+        this.B = _B;
+        this.C = _C;
     }
-    public CelestialBody (String name, Color color, double size) {
-        this.name = name;
-        this.size = size;
-        this.color = color;
+    /*
+    Constructor for CelestialBody object without any orbital data.
+    */
+    public CelestialBody (String _name, Color _color, double _size) {
+        this.name = _name;
+        this.size = _size;
+        this.color = _color;
         this.orbitingBody = null;
         this.A = 0;
         this.B = 0;
         this.C = 0;
     }
     
-    public void move(double angle){
-        double zoom = RenderService.getZoom();
-        x = zoom * B * Math.sin(angle) + C * zoom;
-        y = zoom * A * Math.cos(angle);
+    /*
+    Moves the Celestial Body to the given angle along its orbit
+    @param _angle The given angle in degrees along which it should be in its orbit.
+    */
+    public void move(double _angle){
+        double zoom = RenderService.getInstance().getZoom();
+        this.x = zoom * this.B * Math.sin(_angle) + this.C * zoom;
+        this.y = zoom * this.A * Math.cos(_angle);
         if (orbitingBody != null){
-            x -= orbitingBody.getX();
-            y -= orbitingBody.getY();
+            this.x -= this.orbitingBody.getX();
+            this.y -= this.orbitingBody.getY();
         }
     }
 
-    public void update(double dt){
-        angle += 0.001;
-        move(angle);
+    public void update(double _dt){
+        this.angle += 0.001;
+        move(this.angle);
     }
     
-    public void render(GraphicsContext gc){
-        double zoom = RenderService.getZoom();
-        if (orbitingBody != null){
-            if (displayOrbit){
+    /*
+    Called by RenderService to execute the code needed to paint the planet and its orbit
+    @param _gc The GraphicsContext to paint on.
+    */
+    public void render(GraphicsContext _gc) {
+        double zoom = RenderService.getInstance().getZoom();
+        if (this.orbitingBody != null) {
+            if (this.displayOrbit) {
                 // draw orbit
-                gc.setStroke(color);
-                double x  = orbitingBody.getX() + C*zoom - (A*zoom);
-                double y = orbitingBody.getY() - (B*zoom);
-                if (boldOrbit)
-                    gc.setLineWidth(4.0);
-                gc.strokeOval(x, y, A*zoom*2, B*zoom*2);
-                gc.setLineWidth(1.0);
+                _gc.setStroke(this.color);
+                double x  = this.orbitingBody.getX() + this.C * zoom - (this.A * zoom);
+                double y = this.orbitingBody.getY() - (this.B * zoom);
+                if (this.boldOrbit)
+                    _gc.setLineWidth(4.0);
+                _gc.strokeOval(x, y, this.A * zoom * 2, this.B * zoom * 2);
+                _gc.setLineWidth(1.0);
             }
         }
-        
         // draw planet
-        gc.setFill(color);
+        _gc.setFill(this.color);
         double size = this.size*(zoom/350);
-        if (boldOrbit)
+        if (this.boldOrbit)
             size *= 2;
-        gc.fillOval(x-size/2,y-size/2,size,size);
+        _gc.fillOval(this.x-size/2,this.y-size/2,size,size);
     }
     
-    public double getDistToOrbit(double px, double py){
+    /*
+    Returns a double representing the distance from a given point to the closest point along the given planet's orbit.
+    @param _px Given point x coordinate.
+    @param _py Given point y coordinate.
+    */
+    public double getDistToOrbit(double _px, double _py) {
         if (orbitingBody == null)
             return Integer.MAX_VALUE;
-        double zoom = RenderService.getZoom();
-        double x  = orbitingBody.getX() + C*zoom;
-        double y = orbitingBody.getY();
-        double rx = A*zoom;
-        double ry = B*zoom;
+        double zoom = RenderService.getInstance().getZoom();
+        double x  = this.orbitingBody.getX() + this.C * zoom;
+        double y = this.orbitingBody.getY();
+        double rx = this.A * zoom;
+        double ry = this.B * zoom;
         
-        double d1 = Math.sqrt(Math.pow(px-x, 2) + Math.pow(py-y, 2));
-        double angle = Math.atan((py - y) / (px - x));
-        double d2 = Math.sqrt(Math.pow(rx,2)*Math.pow(Math.cos(angle),2)+Math.pow(ry,2)*Math.pow(Math.sin(angle),2));
+        double d1 = Math.sqrt(Math.pow(_px - x, 2) + Math.pow(_py - y, 2));
+        double angle = Math.atan((_py - y) / (_px - x));
+        double d2 = Math.sqrt(Math.pow(rx, 2) * Math.pow(Math.cos(angle), 2) + Math.pow(ry, 2) * Math.pow(Math.sin(angle), 2));
         return Math.abs(d1 - d2);
     }
     
-    public double getDistToPlanet(double px, double py){
-        return Math.sqrt(Math.pow(getX() - px, 2) + Math.pow(getY() - py, 2));
+    /*
+    Returns a double representing the distance from a given point to the planet in question in terms of screen space
+    @param _px Given point x coordinate.
+    @param _py Given point y coordinate.
+    */
+    public double getDistToPlanet(double _px, double _py) {
+        return Math.sqrt(Math.pow(getX() - _px, 2) + Math.pow(getY() - _py, 2));
     }
     
-    public double getX() { return x; }
-    public double getY() { return y; }
-    public CelestialBody getOrbitingBody(){ return orbitingBody; }
+    //=================================== GETTERS ===================================//
+    public double getX() { return this.x; }
+    public double getY() { return this.y; }
+    public CelestialBody getOrbitingBody(){ return this.orbitingBody; }
 }

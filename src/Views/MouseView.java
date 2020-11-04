@@ -5,7 +5,10 @@
  */
 package Views;
 
+import Controllers.MouseInputController;
+import Controllers.GuiController;
 import Controllers.Signal;
+import Interfaces.InputView;
 import Services.PlanetService;
 import Services.RenderService;
 import javafx.scene.canvas.Canvas;
@@ -16,54 +19,26 @@ import javafx.scene.input.MouseEvent;
  *
  * @author Logan
  */
-public class MouseView {
+public class MouseView implements InputView {
     
-    // Events
-    public static final Signal<Double> MouseDragged = new Signal<>();
-    
-    private static MouseView instance;
-    private final Canvas screen;
-    private double lastX = 0;
-    
-    // Properties
-    private double x = 0;
-    private double y = 0;
-    
-    private MouseView(){
-        screen = RenderService.getCanvas();
-    }
-    
-    public static MouseView GetInstance(){
-        if (instance == null){
-            instance = new MouseView();
-            instance.Init();
-        }
-        return instance;
-    }
-    
-    private void Init(){
+    public static void init() {
+        Canvas screen = GuiController.getInstance().getCanvas();
+        MouseInputController mic = MouseInputController.getInstance();
         //set response to mouse events
         screen.setOnMouseClicked((MouseEvent event) -> {
-            lastX = event.getX();
-            PlanetService.FocusNearestPlanet();
+            mic.mouseClicked(event);
         });
         screen.setOnMouseDragged((MouseEvent event) -> {
-            x = event.getX();
-            y = event.getY();
-
-            MouseDragged.Fire((event.getX() - lastX)/2); // pass delta
-            lastX = event.getX();
+            mic.mouseDragged(event);
+        });
+        screen.setOnMousePressed((MouseEvent event) -> {
+            mic.mousePressed(event);
         });
         screen.setOnMouseReleased((MouseEvent event) -> {
-            //System.out.println("mouseReleased: "+event.getX());
+            mic.mouseReleased(event);
         });
-        
         screen.setOnMouseMoved((MouseEvent event) -> {
-            x = event.getX();
-            y = event.getY();
+            mic.mouseMoved(event);
         });
     }
-    
-    public double getX(){ return x; }
-    public double getY(){ return y; }
 }
