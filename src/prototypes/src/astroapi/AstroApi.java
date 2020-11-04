@@ -1,6 +1,7 @@
 package astroapi;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -13,21 +14,25 @@ public class AstroApi {
 
     private static final String ASTRONOMY_URL = "https://api.le-systeme-solaire.net/rest/bodies";
     private static JSONObject OBJ;
+    private static boolean noReturn = false; //Ensures results of previous calls are not returned twice if current API call fails due to bad params
 
-    
     /*Returns info(_dataWated) of a specific celestial body(_planet). Info on what strings are allowed as _dataWanted
      *here: https://api.le-systeme-solaire.net/en/
      *_body is not case sensitive, _dataWanted is
      */
-    public static String getBodyInfo(String _body, String _dataWanted ) {
+    public static String getBodyInfo(String _body, String _dataWanted) {
         String url = ASTRONOMY_URL + "/{" + _body + "}";
         getConnection(url);
         try {
-            return OBJ.getString(fixParam(_dataWanted));
-        } catch (JSONException ex) {
-            Logger.getLogger(AstroApi.class.getName()).log(Level.SEVERE, null, ex);
-            return "";
+            if (noReturn == false) {
+                return OBJ.getString(fixParam(_dataWanted));
+            }
+        } catch (NullPointerException | JSONException ex) {
+            //Logger.getLogger(AstroApi.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.print("Invalid params");
         }
+        noReturn = false;
+        return "";
     }
 
     private static void getConnection(String _urlString) {
@@ -49,11 +54,14 @@ public class AstroApi {
             con.disconnect();
 
             OBJ = new JSONObject(content.toString());
-        } catch (Exception ex) {
-            Logger.getLogger(AstroApi.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException | JSONException ex) {
+            //Logger.getLogger(AstroApi.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.print("Invalid params");
+            noReturn = true;
         }
     }
-//Fixes any case sensitive parameters by forcing them to be the correct case
+    
+//Fixes any case sensitive parameters by forcing them to be the correct format
     private static String fixParam(String _param) {
         String toLowerCase = _param.toLowerCase();
         if ("id".equals(toLowerCase) || "name".equals(toLowerCase) || "moons".equals(toLowerCase)
@@ -67,7 +75,7 @@ public class AstroApi {
                     return "isPlanet";
                 case "englishname":
                     return "englishName";
-                case "semimajorAxis":
+                case "semimajoraxis":
                     return "semimajorAxis";
                 case "equaradius":
                     return "equaRadius";
@@ -77,14 +85,10 @@ public class AstroApi {
                     return "sideralRotation";
                 case "aroundplanet":
                     return "aroundPlanet";
-                case "discoveredby":
-                    return "discoveredBy";
-                case "discoverydate":
-                    return "discoveryDate";
                 case "axialtilt":
                     return "axialTilt";
             }
         }
-        return "Misspelled or invalid parameter";
+        return "";
     }
 }
