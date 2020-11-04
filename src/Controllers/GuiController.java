@@ -17,18 +17,12 @@ public class GuiController {
     private final Canvas canvas;
     private final StackPane stackPane;
     
-    private static GuiView guiView = GuiView.getInstance();
     protected static GuiController instance;
 
     private GuiController() {
         this.canvas = new Canvas();
         this.stackPane = new StackPane();
-        
-        PlanetService.HoverBegan.Connect(cbc -> {
-            guiView.HoverBegan(cbc);
-        });
     }
-    //if needing to create a new screen, have capability to create a new instance, then for example change getInstance() to getInstance1()
 
     public static GuiController getInstance() {
         if (instance == null)
@@ -45,6 +39,10 @@ public class GuiController {
             this.stackPane.getChildren().add(obj);
     }
     
+    /*
+     * Removes a gui object node (Label, Button, etc..) from the stackPane.
+     * @param _kids Varargs array of Nodes to be added.
+    */
     public void removeGuiObject(Node ..._kids) {
         for (Node obj : _kids)
             this.stackPane.getChildren().remove(obj);

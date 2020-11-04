@@ -13,6 +13,8 @@ import javafx.scene.paint.Color;
 import Models.CelestialBody;
 import Controllers.CelestialBodyController;
 import Controllers.Signal;
+import Events.HoverEvent;
+import Events.SelectedEvent;
 import Models.InputModel;
 import Views.MouseView;
 import java.util.Hashtable;
@@ -25,8 +27,8 @@ public class PlanetService{
     // Events
     public static final Signal<CelestialBodyController> Selected = new Signal<>();
     public static final Signal<CelestialBodyController> UnSelected = new Signal<>();
-    public static final Signal<CelestialBodyController> HoverBegan = new Signal<>();
-    public static final Signal<CelestialBodyController> HoverEnded = new Signal<>();
+    //public static final Signal<CelestialBodyController> HoverBegan = new Signal<>();
+    //public static final Signal<CelestialBodyController> HoverEnded = new Signal<>();
     
     // Properties
     private static Hashtable<String, CelestialBodyController> celestialBodyControllers = new Hashtable<String, CelestialBodyController>();
@@ -94,13 +96,13 @@ public class PlanetService{
             if (dist < 10) { // Change how close you need to be to the orbit here to trigger the Hover events
                 if (closest != lastClosest) {
                     if (lastClosest != null)
-                        HoverEnded.Fire(lastClosest);
-                    HoverBegan.Fire(closest);
+                        HoverEvent.fireHoverEnded(lastClosest);
+                    HoverEvent.fireHoverBegan(closest);
                 }
                 closest.boldOrbit(true);
             } else {
                 if (lastClosest != null)
-                    HoverEnded.Fire(lastClosest);
+                    HoverEvent.fireHoverEnded(lastClosest);
                 closest = null;
             }
         });
@@ -121,14 +123,14 @@ public class PlanetService{
         CelestialBodyController lastSelected = renderService.getFocus();
         if (closest == lastSelected)
             return;
-        UnSelected.Fire(lastSelected);
+        SelectedEvent.fireUnSelected(lastSelected);
         if (closest == null) {
-            Selected.Fire(getPlanetController("Sun"));
+            SelectedEvent.fireSelected(getPlanetController("Sun"));
             renderService.setFocus(getPlanetController("Sun"));
             return;
         }
         //closest.boldOrbit(true);
-        Selected.Fire(closest);
+        SelectedEvent.fireSelected(closest);
         renderService.setFocus(closest);
     }
     

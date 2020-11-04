@@ -19,9 +19,14 @@ public class Main extends Application {
 
     @Override
     public void start(Stage _stage) throws Exception {
+        //Init models and services
         RenderService.getInstance(_stage);
         PlanetService.init();
+        
+        //Init view events
         MouseView.init();
+        GuiView.getInstance();
+        
         //LocationApi.Test();
     }
 

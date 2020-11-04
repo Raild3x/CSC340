@@ -39,7 +39,6 @@ public class RenderService {
     private static RenderService instance;
     
     // References
-    private final GuiController guiController; 
     private final Stage stage;
     private final Canvas canvas;
     private final Scene scene;
@@ -48,13 +47,13 @@ public class RenderService {
     private final ArrayList<CelestialBodyController> gameObjects;
     
     // Settings (Finals)
-    private static final int WIDTH = 1200;
-    private static final int HEIGHT = 1000;
-    private static final int FPS = 60;
-    private static final int MAX_ZOOM = 550;
-    private static final int MIN_ZOOM = 10;
-    private static final int backgroundWidth = 2400;
-    private static final int backgroundHeight = 3840;
+    public static final int WIDTH = 1200;
+    public static final int HEIGHT = 1000;
+    public static final int FPS = 60;
+    public static final int MAX_ZOOM = 550;
+    public static final int MIN_ZOOM = 10;
+    //private static final int backgroundWidth = 2400;
+    //private static final int backgroundHeight = 3840;
 
     // Signals
     public static final Signal<Long> Renderstep = new Signal<>();
@@ -74,10 +73,9 @@ public class RenderService {
      * @param _stage The stage given by JavaFX in main
     */
     private RenderService(Stage _stage) throws Exception {
-        this.guiController = GuiController.getInstance();
         this.stage = _stage;
-        this.canvas = this.guiController.getCanvas();
-        this.stackPane = this.guiController.getStackPane();
+        this.canvas = GuiController.getInstance().getCanvas();
+        this.stackPane = GuiController.getInstance().getStackPane();
         this.scene = new Scene(this.stackPane);
         this.gc = this.canvas.getGraphicsContext2D();
         this.gameObjects = new ArrayList<>();
@@ -119,7 +117,7 @@ public class RenderService {
             Timeline tl = new Timeline(new KeyFrame(Duration.millis(1000 / FPS), e -> run(gc)));
             tl.setCycleCount(Timeline.INDEFINITE);
             
-            this.guiController.addGuiObject(canvas);
+            GuiController.getInstance().addGuiObject(canvas);
             this.stage.setScene(scene);
             this.stage.show();
             //begin rendering
@@ -200,8 +198,6 @@ public class RenderService {
     public double getZoom(){ return this.ZOOM; }
     public double getOffsetX() { return this.offsetX - WIDTH/2; }
     public double getOffsetY() { return this.offsetY - HEIGHT/2; }
-    public int getWidth() { return WIDTH; }
-    public int getHeight() { return HEIGHT; }
     
     //=================================== SETTERS ===================================//
     public void setFocus(CelestialBodyController _focus){
