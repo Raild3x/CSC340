@@ -4,6 +4,7 @@ package services;
  *
  * @author Logan
  */
+import api.AstroApi;
 import javafx.stage.Stage;
 import javafx.application.Application;
 //import Api.*;
@@ -28,6 +29,8 @@ public class Main extends Application {
         GuiView.getInstance();
         
         //LocationApi.Test();
+        //System.out.println(getLocationInfo("latitude"));
+        System.out.println(AstroApi.getBodyInfo("lune"));
     }
 
 }

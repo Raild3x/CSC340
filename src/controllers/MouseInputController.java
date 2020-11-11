@@ -15,8 +15,11 @@ import javafx.scene.input.MouseEvent;
 public class MouseInputController extends InputController {
     private static MouseInputController instance;
     
+    private static long lastClickTime;
+    
     private MouseInputController() {
         super();
+        this.lastClickTime = System.currentTimeMillis();
     }
     
     public static MouseInputController getInstance() {
@@ -37,14 +40,20 @@ public class MouseInputController extends InputController {
     
     public void mouseClicked(MouseEvent e) {
         //setXY(e.getX(), e.getY());
-        PlanetService.focusNearestPlanet();
+        
     }
     
     public void mousePressed(MouseEvent e) {
         setXY(e.getX(), e.getY());
+        this.lastClickTime = System.currentTimeMillis();
     }
     
     public void mouseReleased(MouseEvent e) {
         setXY(e.getX(), e.getY());
+        if (System.currentTimeMillis() < this.lastClickTime + 200) {
+            //System.out.println("Mouse released in time; time left: "+(200-(System.currentTimeMillis()-this.lastClickTime)));
+            PlanetService.focusNearestPlanet();
+        }
+            
     }
 }

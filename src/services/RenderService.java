@@ -47,13 +47,11 @@ public class RenderService {
     private final ArrayList<CelestialBodyController> gameObjects;
     
     // Settings (Finals)
-    public static final int WIDTH = 1200;
-    public static final int HEIGHT = 1000;
+    //public static final int WIDTH = 1200;
+    //public static final int HEIGHT = 1000;
     public static final int FPS = 60;
     public static final int MAX_ZOOM = 4000;
-    public static final int MIN_ZOOM = 10;
-    //private static final int backgroundWidth = 2400;
-    //private static final int backgroundHeight = 3840;
+    public static final int MIN_ZOOM = 5;
 
     // Signals
     public static final Signal<Long> Renderstep = new Signal<>();
@@ -65,7 +63,7 @@ public class RenderService {
     private double offsetX = 0;
     private double offsetY = 0;
     private long lastTick;
-    private CelestialBodyController focus;
+    private CelestialBodyController currentPlanetFocus;
     
 
     /*
@@ -111,8 +109,6 @@ public class RenderService {
             this.stage.setTitle("Orbit Test");
 
             //rerouted the GUI canvas and stackpane to be made in GUIController so I can add buttons to it from GuiView -Taylor
-            this.canvas.setHeight(HEIGHT);
-            this.canvas.setWidth(WIDTH);
             
             Timeline tl = new Timeline(new KeyFrame(Duration.millis(1000 / FPS), e -> run(gc)));
             tl.setCycleCount(Timeline.INDEFINITE);
@@ -146,17 +142,17 @@ public class RenderService {
     private void run(GraphicsContext _gc) {
         // Do update logic
         ZOOM += (goalZOOM - ZOOM) / 5;
-        if (focus != null) {
-            offsetX += (focus.getX() - offsetX) / 5;
-            offsetY += (focus.getY() - offsetY) / 5;
+        if (currentPlanetFocus != null) {
+            offsetX += (currentPlanetFocus.getX() - offsetX) / 5;
+            offsetY += (currentPlanetFocus.getY() - offsetY) / 5;
         }
-        
+
         // set background color
         _gc.setFill(Color.BLACK);
-        _gc.fillRect(0, 0, WIDTH, HEIGHT);
+        _gc.fillRect(0, 0, this.canvas.getWidth(), this.canvas.getHeight());
         
         // Clear the canvas
-        gc.clearRect(0, 0, WIDTH, HEIGHT);
+        gc.clearRect(0, 0, this.canvas.getWidth(), this.canvas.getHeight());
         
         double dx = getOffsetX();
         double dy = getOffsetY();
@@ -197,17 +193,25 @@ public class RenderService {
     }
     
     //=================================== GETTERS ===================================//
-    public CelestialBodyController getFocus(){ return this.focus; }
-    public double getZoom(){ return this.ZOOM*2; }
-    public double getOffsetX() { return this.offsetX - WIDTH/2; }
-    public double getOffsetY() { return this.offsetY - HEIGHT/2; }
-    
-    //=================================== SETTERS ===================================//
-    public void setFocus(CelestialBodyController _focus){
-        this.focus = _focus;
+    public CelestialBodyController getFocus() {
+        return this.currentPlanetFocus; 
+    }
+    public double getZoom() {
+        return this.ZOOM*2; 
+    }
+    public double getOffsetX() {
+        return this.offsetX - this.canvas.getWidth()/2; 
+    }
+    public double getOffsetY() {
+        return this.offsetY - this.canvas.getHeight()/2; 
     }
     
-    public void setFocus(String _focus){
-        this.focus = PlanetService.getPlanetController(_focus);
+    //=================================== SETTERS ===================================//
+    public void setFocus(CelestialBodyController _currentPlanetFocus){
+        this.currentPlanetFocus = _currentPlanetFocus;
+    }
+    
+    public void setFocus(String _currentPlanetFocus){
+        this.currentPlanetFocus = PlanetService.getPlanetController(_currentPlanetFocus);
     }
 }

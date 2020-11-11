@@ -36,7 +36,7 @@ public class InputModel {
     Method to trigger the event for changing zoom
     */
     public void drag() {
-        System.out.println("DRAGGING");
+        //System.out.println("DRAGGING");
         InputDragging.Fire((this.x - this.lastX) / 2); // pass delta
     }
     
