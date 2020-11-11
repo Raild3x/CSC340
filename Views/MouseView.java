@@ -1,31 +1,28 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package Views;
 
 import Controllers.MouseInputController;
+import Controllers.GuiController;
 import Controllers.Signal;
 import Interfaces.InputInterface;
-
+import Services.PlanetService;
+import Services.RenderService;
 import javafx.scene.canvas.Canvas;
-import Controllers.GuiController;
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 
+/**
+ *
+ * @author Logan
+ */
 public class MouseView implements InputInterface {
 
-    private static MouseView instance;
-    private final Canvas screen;
-
-    private MouseView() {
-        screen = GuiController.getCanvas();
-    }
-
-    public static MouseView getInstance() {
-        if (instance == null) {
-            instance = new MouseView();
-            instance.init();
-        }
-        return instance;
-    }
-
-    private void init() {
+    public static void init() {
+        Canvas screen = GuiController.getInstance().getCanvas();
         MouseInputController mic = MouseInputController.getInstance();
         //set response to mouse events
         screen.setOnMouseClicked((MouseEvent event) -> {

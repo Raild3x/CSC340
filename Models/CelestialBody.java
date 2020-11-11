@@ -1,8 +1,8 @@
-
 package Models;
 
 import Services.RenderService;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.Shadow;
 import javafx.scene.paint.Color;
 
 public class CelestialBody {
@@ -53,7 +53,7 @@ public class CelestialBody {
     @param _angle The given angle in degrees along which it should be in its orbit.
      */
     public void move(double _angle) {
-        double zoom = RenderService.getZoom();
+        double zoom = RenderService.getInstance().getZoom();
         this.x = zoom * this.B * Math.sin(_angle) + this.C * zoom;
         this.y = zoom * this.A * Math.cos(_angle);
         if (orbitingBody != null) {
@@ -72,27 +72,36 @@ public class CelestialBody {
     @param _gc The GraphicsContext to paint on.
      */
     public void render(GraphicsContext _gc) {
-        double zoom = RenderService.getZoom();
+        double zoom = RenderService.getInstance().getZoom();
         if (this.orbitingBody != null) {
             if (this.displayOrbit) {
                 // draw orbit
-                _gc.setStroke(this.color);
+                _gc.setStroke(Color.LIGHTSLATEGRAY);
                 double x = this.orbitingBody.getX() + this.C * zoom - (this.A * zoom);
                 double y = this.orbitingBody.getY() - (this.B * zoom);
                 if (this.boldOrbit) {
+                    _gc.setStroke(Color.SILVER);
                     _gc.setLineWidth(4.0);
                 }
                 _gc.strokeOval(x, y, this.A * zoom * 2, this.B * zoom * 2);
                 _gc.setLineWidth(1.0);
             }
         }
-        // draw planet
-        _gc.setFill(this.color);
+        // draw planet 
+
         double size = this.size * (zoom / 350);
+        _gc.setFill(this.color);
+        /*Shadow shadow = new Shadow();
+        shadow.setRadius(this.x - size / 2);
+        shadow.setHeight(this.y - size / 2);*/
+
         if (this.boldOrbit) {
             size *= 2;
+            
         }
         _gc.fillOval(this.x - size / 2, this.y - size / 2, size, size);
+       // _gc.setEffect(shadow);
+        
     }
 
     /*
@@ -104,7 +113,7 @@ public class CelestialBody {
         if (orbitingBody == null) {
             return Integer.MAX_VALUE;
         }
-        double zoom = RenderService.getZoom();
+        double zoom = RenderService.getInstance().getZoom();
         double x = this.orbitingBody.getX() + this.C * zoom;
         double y = this.orbitingBody.getY();
         double rx = this.A * zoom;

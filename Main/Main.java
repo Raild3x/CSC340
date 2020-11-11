@@ -4,8 +4,6 @@ import Services.PlanetService;
 import Services.RenderService;
 import javafx.stage.Stage;
 import javafx.application.Application;
-import Api.*;
-import Views.GuiView;
 import Views.MouseView;
 
 public class Main extends Application {
@@ -15,11 +13,10 @@ public class Main extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
-        RenderService.init(stage);
-        GuiView.init();
+    public void start(Stage _stage) throws Exception {
+        RenderService.getInstance(_stage);
         PlanetService.init();
-        MouseView.getInstance();
+        MouseView.init();
         //LocationApi.Test();
     }
 

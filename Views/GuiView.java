@@ -1,17 +1,14 @@
 package Views;
 
+import Controllers.CelestialBodyController;
 import Controllers.GuiController;
-import static Services.PlanetService.HoverBegan;
-import static Services.PlanetService.HoverEnded;
+import Services.PlanetService;
 import Services.RenderService;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Button;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
+
 import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 
 /**
  *
@@ -19,64 +16,79 @@ import javafx.scene.text.Text;
  */
 public class GuiView {
 
-//    private static StackPane stackPane = new StackPane();
-//    private static Canvas canvas = new Canvas();
-//
-//    private static GuiView instance;
-//
-//    private GuiView(StackPane stackPane, Canvas canvas) {
-//        this.stackPane = stackPane;
-//        this.canvas = canvas;
-//    }
-//
-//    public static GuiView getInstance() {
-//        if (instance == null) {
-//            instance = new GuiView(stackPane, canvas);
-//        }
-//        return instance;
-//    }
-    protected static final GuiController guiController = GuiController.getInstance();
+    protected final GuiController guiController;
+    protected static GuiView instance;
 
-    public static void init() {
-        initButtons();
+    private GuiView() {
+        this.guiController = GuiController.getInstance();
+        this.init();
     }
 
-    public static void initButtons() {
-        // THIS IS JUST AN EXAMPLE OF HOW TO USE BUTTONS, WE WILL NOT ACTUALLY HAVE A PLANET FOCUS
-        // The most likely usage of buttons/labels will be in our popup UIs for when we click on celestial bodies or opening the settings menu.
-        Button button = new Button("Click To Shift Focus to Earth");
-        button.setStyle("-fx-background-color: #aaaaaa");
-        button.setTranslateX(-500);
-        button.setTranslateY(-300);
-        button.setOnAction(e -> {
-            button.setText("Shifted Focus");
-            RenderService.setFocus("Earth");
-        });
+    public static GuiView getInstance() {
+        if (instance == null) {
+            instance = new GuiView();
+        }
+        return instance;
+    }
 
-        Label zoomLbl = new Label("Zoom:");
-        zoomLbl.setStyle("-fx-background-color: #aaaaaa");
-        zoomLbl.setTranslateX(-500);
+    public void init() {
+        initGui();
+    }
+
+//    public void setBackground() {
+//        Image spaceImage = this.guiController.getImage();
+//        Background space = new Background(new BackgroundImage(spaceImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT));
+//        this.guiController.getStackPane().setBackground(space);
+//    }
+//moved to GUIController
+    public void initGui() {
+        final Label appName = new Label("inSpace");
+        appName.setStyle("-fx-text-fill : white; -fx-opacity : 0.8;");
+        appName.setAlignment(Pos.TOP_CENTER);
+        appName.setTranslateY(-395);
+        appName.setFont(Font.font(30));
+        this.guiController.addGuiObject(appName);
+
+        final Label zoomLbl = new Label();
+        zoomLbl.setStyle("-fx-text-fill : white; -fx-opacity : 0.5;");
+        zoomLbl.setTranslateX(625);
         zoomLbl.setTranslateY(-400);
+        zoomLbl.setFont(Font.font(10));
+
         RenderService.PostRenderstep.Connect(dt -> {
-            zoomLbl.setText("ZOOM: " + Double.toString(Math.ceil(RenderService.getZoom() * 10) / 10));
+            zoomLbl.setText("ZOOM: " + Double.toString(Math.ceil(RenderService.getInstance().getZoom() * 10) / 10));
         });
-        final Label planetName = new Label();
-        planetName.setTranslateX(-500);
-        planetName.setTranslateY(-200);
-        planetName.setFont(Font.font(30));
-        HoverBegan.Connect(cbc -> {
-            System.out.println("Began hovering over: " + cbc.getName());
-            planetName.setText(cbc.getName());
+        this.guiController.addGuiObject(zoomLbl);
+        final Label planetNameLabel = new Label();
+//        planetNameLabel.setTranslateX(-595);
+//        planetNameLabel.setTranslateY(-390);
+        planetNameLabel.setTranslateX(-400);
+        planetNameLabel.setAlignment(Pos.CENTER);
+        planetNameLabel.setFont(Font.font(35));
+        planetNameLabel.setStyle("-fx-text-fill : white; -fx-opacity : 0.5;");
 
-            GuiController.getStackPane().getChildren().add(planetName);
+        PlanetService.HoverBegan.Connect(cbc -> {
+
+            planetNameLabel.setText(cbc.getName());
+
+            this.guiController.addGuiObject(planetNameLabel);
 
         });
-        HoverEnded.Connect(cbc -> {
+        PlanetService.HoverEnded.Connect(cbc -> {
             System.out.println("Stopped hovering over: " + cbc.getName());
-            GuiController.getStackPane().getChildren().remove(planetName);
+            this.guiController.removeGuiObject(planetNameLabel);
         });
 
-        GuiController.getStackPane().getChildren().addAll(button, zoomLbl);
+        PlanetService.Selected.Connect(cbc -> {
+            System.out.println("Selected " + cbc.getName());
+        });
+        PlanetService.UnSelected.Connect(cbc -> {
+            System.out.println("UnSelected " + cbc.getName());
+        });
+
     }
 
+    public void HoverBegan(CelestialBodyController cbc) {
+        System.out.println("Began hovering over: " + cbc.getName());
+    }
 }
