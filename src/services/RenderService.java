@@ -50,7 +50,7 @@ public class RenderService {
     public static final int WIDTH = 1200;
     public static final int HEIGHT = 1000;
     public static final int FPS = 60;
-    public static final int MAX_ZOOM = 550;
+    public static final int MAX_ZOOM = 4000;
     public static final int MIN_ZOOM = 10;
     //private static final int backgroundWidth = 2400;
     //private static final int backgroundHeight = 3840;
@@ -198,7 +198,7 @@ public class RenderService {
     
     //=================================== GETTERS ===================================//
     public CelestialBodyController getFocus(){ return this.focus; }
-    public double getZoom(){ return this.ZOOM; }
+    public double getZoom(){ return this.ZOOM*2; }
     public double getOffsetX() { return this.offsetX - WIDTH/2; }
     public double getOffsetY() { return this.offsetY - HEIGHT/2; }
     

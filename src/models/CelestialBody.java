@@ -62,12 +62,15 @@ public class CelestialBody {
     */
     public void move(double _angle){
         double zoom = RenderService.getInstance().getZoom();
-        this.x = zoom * this.B * Math.sin(_angle) + this.C * zoom;
-        this.y = zoom * this.A * Math.cos(_angle);
         if (orbitingBody != null){
-            this.x -= this.orbitingBody.getX();
-            this.y -= this.orbitingBody.getY();
+            this.x = this.orbitingBody.getX() + zoom * this.B * Math.sin(_angle) + this.C * zoom;
+            this.y = this.orbitingBody.getY() - zoom * this.A * Math.cos(_angle);
+        } else {
+            this.x = zoom * this.B * Math.sin(_angle) + this.C * zoom;
+            this.y = zoom * this.A * Math.cos(_angle);
         }
+        
+        
     }
 
     public void update(double _dt){
@@ -95,9 +98,9 @@ public class CelestialBody {
         }
         // draw planet
         _gc.setFill(this.color);
-        double size = this.size*(zoom/350);
-        if (this.boldOrbit)
-            size *= 2;
+        double size = this.size/10*(zoom/350);
+        if (this.boldOrbit && this.name != "Sun")
+            size *= 10;
         _gc.fillOval(this.x-size/2,this.y-size/2,size,size);
     }
     
