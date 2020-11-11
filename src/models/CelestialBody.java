@@ -87,7 +87,7 @@ public class CelestialBody {
         if (this.orbitingBody != null) {
             if (this.displayOrbit) {
                 // draw orbit
-                _gc.setStroke(this.color);
+                _gc.setStroke(Color.GRAY);
                 double x  = this.orbitingBody.getX() + this.C * zoom - (this.A * zoom);
                 double y = this.orbitingBody.getY() - (this.B * zoom);
                 if (this.boldOrbit)
@@ -98,9 +98,9 @@ public class CelestialBody {
         }
         // draw planet
         _gc.setFill(this.color);
-        double size = this.size/10*(zoom/350);
+        double size = this.size/3*(zoom/350);
         if (this.boldOrbit && this.name != "Sun")
-            size *= 10;
+            size *= 3;
         _gc.fillOval(this.x-size/2,this.y-size/2,size,size);
     }
     

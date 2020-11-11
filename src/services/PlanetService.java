@@ -45,7 +45,7 @@ public class PlanetService{
     */
     private static void initPlanets(){
         // Create celestial bodies
-        CelestialBody Sun = new CelestialBody("Sun", Color.YELLOW, 4326.90);
+        CelestialBody Sun = new CelestialBody("Sun", Color.YELLOW, 526.90);//4326.90
         
         CelestialBody Mercury = new CelestialBody("Mercury", Color.GRAY, 15.16, Sun, 0.3870, 0.3788, 0.0796);
         CelestialBody Venus = new CelestialBody("Venus", Color.GREEN, 37.60, Sun, 0.7219, 0.7219, 0.0049);
